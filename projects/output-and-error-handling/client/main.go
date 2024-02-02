@@ -43,10 +43,19 @@ func MakeRequest() (string, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusTooManyRequests { /* Non-2xx response codes wont error out, but this is 429 */
-		return handleRequestRetry(resp)
+	switch sc := resp.StatusCode; sc {
+	case http.StatusOK:
+		return handle200(resp)
+	case http.StatusTooManyRequests:
+		return handle429(resp)
+	default:
+		return handleUnexpectedResponse(resp)
 	}
+}
 
+/**** HELPERS ****/
+
+func handle200(resp *http.Response) (string, error) {
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", fmt.Errorf("error reading response body: %w", err)
@@ -55,17 +64,24 @@ func MakeRequest() (string, error) {
 	return string(body), nil
 }
 
-/**** HELPERS ****/
-func handleRequestRetry(resp *http.Response) (string, error) {
+func handle429(resp *http.Response) (string, error) {
 	retryVal := resp.Header.Get(RETRYAFTERKEY)
 	timeUntilRetry, err := parseDelay(retryVal)
 	if err != nil {
 		return "", fmt.Errorf("error parsing retry-time delay: %w", err)
 	}
 
-	fmt.Printf("\nSleeping for %v seconds...", timeUntilRetry/time.Second)
+	fmt.Printf("\nSleeping for %v", timeUntilRetry)
 	time.Sleep(timeUntilRetry)
 	return MakeRequest()
+}
+
+func handleUnexpectedResponse(resp *http.Response) (string, error) {
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("error reading unexpected response body")
+	}
+	return fmt.Sprintf("status code: %d, response body: %v", resp.StatusCode, string(body)), nil
 }
 
 func parseDelay(retryVal string) (time.Duration, error) {

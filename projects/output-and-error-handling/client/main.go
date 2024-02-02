@@ -19,13 +19,11 @@ var ClientUnexpectedError = errors.New("unexpected error making client request")
 
 func main() {
 	for {
-		fmt.Printf("\n\nMaking new request...")
 		respStr, err := MakeRequest()
 		if err != nil {
 			if errors.Is(err, ClientUnexpectedError) {
 				fmt.Fprintf(os.Stderr, "\nerror: irrevcoverable error: %v", err)
 				os.Exit(1)
-				continue
 			}
 			fmt.Fprintf(os.Stderr, "\nerror: %v", err)
 			continue
@@ -36,6 +34,7 @@ func main() {
 }
 
 func MakeRequest() (string, error) {
+	fmt.Printf("\n\nMaking new request...")
 	client := http.Client{Timeout: 5 * time.Second}
 
 	resp, err := client.Get(URL)
@@ -59,24 +58,29 @@ func MakeRequest() (string, error) {
 /**** HELPERS ****/
 func handleRequestRetry(resp *http.Response) (string, error) {
 	retryVal := resp.Header.Get(RETRYAFTERKEY)
-	secsUntilRetry, err := strconv.Atoi(retryVal) /* Sometimes the server sends seconds to wait */
+	timeUntilRetry, err := parseDelay(retryVal)
 	if err != nil {
-		retryTime, err := time.Parse(http.TimeFormat, retryVal) /* Sometimes the server sends exact retry time */
-		if err != nil {
-			return "", fmt.Errorf("invalid format for retry time")
-		}
-
-		timeUntilRetry := time.Until(retryTime)
-		if timeUntilRetry > 0 { /* If retry time has not already passed by the time response arrives  */
-			fmt.Printf("\nSleeping for %v nanoseconds...", timeUntilRetry)
-			time.Sleep(timeUntilRetry)
-		}
-		fmt.Printf("\nRetrying...")
-		return MakeRequest()
+		return "", fmt.Errorf("error parsing retry-time delay: %w", err)
 	}
 
-	fmt.Printf("\nSleeping for %v seconds...", secsUntilRetry)
-	time.Sleep(time.Second * time.Duration(secsUntilRetry))
-	fmt.Printf("\nRetrying...")
+	fmt.Printf("\nSleeping for %v seconds...", timeUntilRetry/time.Second)
+	time.Sleep(timeUntilRetry)
 	return MakeRequest()
+}
+
+func parseDelay(retryVal string) (time.Duration, error) {
+	/* Sometimes the server sends seconds to wait  */
+	secsUntilRetry, err := strconv.Atoi(retryVal)
+
+	/* Sometimes the server sends exact retry time */
+	if err != nil {
+		retryTime, err := time.Parse(http.TimeFormat, retryVal)
+		if err != nil {
+			return time.Second, fmt.Errorf("invalid format for retry time: %v", retryVal)
+		}
+
+		return time.Until(retryTime), nil
+	}
+
+	return time.Second * time.Duration(secsUntilRetry), nil
 }

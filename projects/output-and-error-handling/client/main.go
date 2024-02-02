@@ -13,6 +13,7 @@ import (
 const (
 	URL           = "http://localhost:8080"
 	RETRYAFTERKEY = "Retry-After"
+	TIMEOUT       = 5
 )
 
 var ClientUnexpectedError = errors.New("unexpected error making client request")
@@ -35,7 +36,7 @@ func main() {
 
 func MakeRequest() (string, error) {
 	fmt.Printf("\n\nMaking new request...")
-	client := http.Client{Timeout: 5 * time.Second}
+	client := NewClient(&http.Transport{})
 
 	resp, err := client.Get(URL)
 	if err != nil { /* request itself returns an error */
@@ -99,4 +100,11 @@ func parseDelay(retryVal string) (time.Duration, error) {
 	}
 
 	return time.Second * time.Duration(secsUntilRetry), nil
+}
+
+func NewClient(t *http.Transport) *http.Client {
+	return &http.Client{
+		Transport: t,
+		Timeout:   5 * time.Second,
+	}
 }

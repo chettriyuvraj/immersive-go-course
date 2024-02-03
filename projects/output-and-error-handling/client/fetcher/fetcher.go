@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
@@ -44,7 +45,7 @@ func NewFetcher(rt http.RoundTripper) *Fetcher {
 }
 
 func (f *Fetcher) MakeRequest(URL string) (string, error) {
-	fmt.Printf("\n\nMaking new request to %v...", URL)
+	fmt.Fprintf(os.Stderr, "\n\nMaking new request to %v...", URL)
 
 	resp, err := f.client.Get(URL)
 	if err != nil { /* request itself returns an error */
@@ -80,7 +81,7 @@ func (f *Fetcher) handle429(resp *http.Response) (string, error) {
 		return "", fmt.Errorf("error parsing retry-time delay: %w", err)
 	}
 
-	fmt.Printf("\nSleeping for %v", timeUntilRetry)
+	fmt.Fprintf(os.Stderr, "\nSleeping for %v", timeUntilRetry)
 	time.Sleep(timeUntilRetry)
 	return "", &RetryError{msg: "retry the request", retryIn: timeUntilRetry}
 }

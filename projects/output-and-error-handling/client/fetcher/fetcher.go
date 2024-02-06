@@ -11,7 +11,6 @@ import (
 )
 
 const (
-	URL           = "http://localhost:8080"
 	RETRYAFTERKEY = "Retry-After"
 	TIMEOUT       = 5
 )
@@ -39,7 +38,7 @@ func NewFetcher(rt http.RoundTripper) *Fetcher {
 	return &Fetcher{
 		client: http.Client{
 			Transport: rt,
-			Timeout:   5 * time.Second,
+			Timeout:   TIMEOUT * time.Second,
 		},
 	}
 }

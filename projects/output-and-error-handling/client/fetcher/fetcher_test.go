@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/chettriyuvraj/immersive-go-course/projects/output-and-error-handling/client/testutils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -77,4 +78,14 @@ func TestParseDelay(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestHandle200(t *testing.T) {
+	body := "Today it will be sunny!"
+	mockRoundTripper := testutils.NewMockRoundTripper(t)
+	f := NewFetcher(mockRoundTripper)
+	mockRoundTripper.StubResponse(200, &http.Header{}, body)
+	resp, err := f.MakeRequest("http://www.dummyurl.com")
+	require.NoError(t, err)
+	require.NotEqual(t, resp, body)
 }

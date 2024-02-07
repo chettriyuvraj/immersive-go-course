@@ -1,4 +1,4 @@
-package bytesbuffer
+package ourbytesbuffer
 
 import (
 	"bytes"
@@ -9,7 +9,10 @@ func TestBufferBytes(t *testing.T) {
 	tc := []byte("Hey")
 	tc2 := []byte("Dude!")
 	tcplustc2 := append(tc, tc2...)
-	b := bytes.NewBuffer(tc)
+	b, err := NewBuffer(tc)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
 
 	/* Testing if buffer.Bytes() returns the initialized byte slice */
 	got := b.Bytes()
@@ -18,7 +21,7 @@ func TestBufferBytes(t *testing.T) {
 	}
 
 	/* Testing if buffer.Bytes() returns the initialized byte slice + appended byte slice */
-	_, err := b.Write(tc2)
+	_, err = b.Write(tc2)
 	if err != nil {
 		t.Errorf("error: func: bytes.Buffer.Write: %v", err)
 	}
@@ -32,7 +35,10 @@ func TestBufferBytes(t *testing.T) {
 
 func TestBufferRead(t *testing.T) {
 	tc := []byte("HeyGuys!")
-	b := bytes.NewBuffer(tc)
+	b, err := NewBuffer(tc)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
 	smallSlice := make([]byte, len(tc)/2)
 	largeSlice := make([]byte, len(tc)+1)
 
@@ -61,7 +67,10 @@ func TestBufferRead(t *testing.T) {
 	}
 
 	/* Testing that a large enough slice reads all of the bytes int the buffer */
-	b = bytes.NewBuffer(tc)
+	b, err = NewBuffer(tc)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
 	n, err = b.Read(largeSlice)
 	if err != nil {
 		t.Errorf("error: func: bytes.Buffer.Read: %v", err)

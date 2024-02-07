@@ -37,3 +37,19 @@
 - Since this is just a writer; how should we write tests for it (?)
     - The only thing we can test is the count of the bytes written, i.e. pass a normal string without numbers, n should return count equal to string length - write one of this
     - Write a couple of different types of number tests (continuing eg. "abc467") (single digits eg. "1a2b") (only digits eg. "123")
+
+
+
+### Observations on my solution vs reference solution
+
+- Reference Solution: https://github.com/CodeYourFuture/immersive-go-course/tree/impl/interfaces/projects/interfaces
+- OurBytesBuffer
+    - I have implemented the non-table-driven version of tests (inadvertently - I thought we had to test EXACTLY as the question asked)
+    - Each 'factor' to test is segregated in the reference solution, I have combined multiple ones. Should be segregated for readability.
+    - Reference solution uses the require package, which can be used to improve readability in my solution BY A LOT.
+    - The section explaining trade-offs between table and non-table driven tests is VERY GOOD!
+
+- Filtering pipe
+    - My interpretation: _The only thing we can test is the count of the bytes written_ -> Acc to the reference soln, _io.Writer is documented to return the number of bytes processed, not used_ so n will always be the entire length of the string including digits
+    - What else can we test then? We can pass a ReadWriter() like Buffer and at the end check the contents of the buffer has no digits
+    - Also, the table-driven style goes very well here! 

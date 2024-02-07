@@ -1,5 +1,6 @@
 # README
 
+## OurBytesBuffer
 
 - Functions being implemented
     - Behaviour same as bytes.Buffer:
@@ -24,3 +25,15 @@
 
         - We let our buffer length be constrained by max size of the offset pointer = 2 ^ 31
         - Thread Safety (?):
+
+
+## FilteringPipe
+
+- Not implementing this, writing down pseudocode
+- Define struct with an io.writer field
+- Let io.writer be fed on initialization
+- It's write method should first take 1 pass through byte array and remove all numerical bytes
+- After which it should call write of the underlying io.Writer and return result
+- Since this is just a writer; how should we write tests for it (?)
+    - The only thing we can test is the count of the bytes written, i.e. pass a normal string without numbers, n should return count equal to string length - write one of this
+    - Write a couple of different types of number tests (continuing eg. "abc467") (single digits eg. "1a2b") (only digits eg. "123")

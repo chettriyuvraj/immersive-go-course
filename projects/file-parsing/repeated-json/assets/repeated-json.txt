@@ -1,0 +1,4 @@
+# This file contains lines of data stored in JSON format. Each line contains exactly one record stored as an object.
+{"name": "Aya", "high_score": 10}
+# Charlie didn't do fantastically :(
+{"name": "Prisha", "high_score": 30}

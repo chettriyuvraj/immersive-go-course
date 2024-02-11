@@ -21,7 +21,7 @@ func TestIsLineAComment(t *testing.T) {
 func TestScanNextLine(t *testing.T) {
 	type args struct {
 		data      string
-		scanCount int // not technically an argument
+		scanCount int // total number of scans to get to the particular line - not technically an argument
 	}
 	tests := []struct {
 		name    string
@@ -54,7 +54,6 @@ func TestScanNextLine(t *testing.T) {
 				data:      "This is the first line\nThis is the second line\nThis is the third line",
 				scanCount: 4,
 			},
-			want:    nil,
 			wantErr: true,
 			err:     io.EOF,
 		},
@@ -71,8 +70,8 @@ func TestScanNextLine(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
+				require.Equal(t, tc.want, got)
 			}
-			require.Equal(t, tc.want, got)
 		})
 	}
 }

@@ -44,6 +44,7 @@
 
 - Reference Solution: https://github.com/CodeYourFuture/immersive-go-course/tree/impl/interfaces/projects/interfaces
 - OurBytesBuffer
+    - Our implementation of ourbytesbuffer seems a bit more verbose than the reference impl, this is mainly due to our choice of having extra buffer space (2x) any time the buffer gets filled + at the start, thus the endPoint of the content is not always equal to the length of the buffer
     - I have implemented the non-table-driven version of tests (inadvertently - I thought we had to test EXACTLY as the question asked)
     - Each 'factor' to test is segregated in the reference solution, I have combined multiple ones. Should be segregated for readability.
     - Reference solution uses the require package, which can be used to improve readability in my solution BY A LOT.

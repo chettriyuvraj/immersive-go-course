@@ -8,3 +8,8 @@
     - Test that we can get the correct struct from a given string data
     - Test all of this combined with a csv file
     - Pretty similar to our prev strategies
+
+### Observations post-implementation
+
+- Didn't implement completely, quite similar to prev strats
+- Check reference implementation

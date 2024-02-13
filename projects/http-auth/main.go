@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -16,26 +15,12 @@ func main() {
 			return
 		}
 
-		b := make([]byte, 2048)
 		buf := new(bytes.Buffer)
-		body := r.Body
-		for {
-			n, err := body.Read(b)
-			fmt.Println(string(b))
-			if err != nil && err != io.EOF {
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			_, err2 := buf.Write(b[:n])
-			if err2 != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			if err == io.EOF {
-				break
-			}
+		defer r.Body.Close()
+		_, err := io.Copy(buf, r.Body) // not needed - but just to show that we can maybe do some processing stuff here
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 
 		w.Header().Set("Content-Type", "text/html")

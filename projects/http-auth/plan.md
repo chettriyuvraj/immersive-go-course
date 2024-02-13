@@ -6,4 +6,4 @@
 
 ### Thoughts
 
-- Exercise to re-send post request html content. Is using two buffers the way to go?
+- Exercise to re-send post request html content. Is using two buffers the way to go? (Answer: No, something like io.Copy makes things much simpler)

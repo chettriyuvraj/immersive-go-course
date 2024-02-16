@@ -54,13 +54,13 @@ func handleAuthenticated(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if username == "chettriyuvraj" && pass == "king" {
-		w.Write([]byte("<!DOCTYPE html>\n<html>Hello chettriyuvraj!"))
 		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("<!DOCTYPE html>\n<html>Hello chettriyuvraj!"))
 		return
 	}
 
-	w.Write([]byte("Credentials wrong or invalid"))
 	w.WriteHeader(http.StatusUnauthorized)
+	w.Write([]byte("Credentials wrong or invalid"))
 }
 
 func handle200(w http.ResponseWriter, r *http.Request) {

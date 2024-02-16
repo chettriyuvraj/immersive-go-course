@@ -36,3 +36,8 @@
 - Exercise to re-send post request html content. Is using two buffers the way to go? (Answer: No, something like io.Copy makes things much simpler)
 - Exercise to bake-in query params is interesting in terms of escaping the html. Teaches how to use query params and also revises the concepts of buffers and writers (interfaces in general)
 - Implemented test for 200 handler, for 500 and 404, will look very very similar. Is my usage of a buffer and io.Copy() correct in the test?
+- While implementing tests for "/authenticated"
+    - Helped uncover wrong assumptions and correct them i.e. I didn't know there was an order to WriteHeader() and Write() + Setting headers after WriteHeaders() would fail
+    - Tests are VVV imp
+- Not implementing tests for base route + 500, 404 as they would be very similar to the other ones
+- Check reference solution

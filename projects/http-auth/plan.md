@@ -31,7 +31,8 @@
         - inspect this and match with all our conditions defined above!!
 
 
-### Thoughts
+### Thoughts post impl
 
 - Exercise to re-send post request html content. Is using two buffers the way to go? (Answer: No, something like io.Copy makes things much simpler)
 - Exercise to bake-in query params is interesting in terms of escaping the html. Teaches how to use query params and also revises the concepts of buffers and writers (interfaces in general)
+- Implemented test for 200 handler, for 500 and 404, will look very very similar. Is my usage of a buffer and io.Copy() correct in the test?

@@ -42,20 +42,25 @@ func handleBase(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleAuthenticated(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.NotFound(w, r)
+		return
+	}
+
 	username, pass, ok := r.BasicAuth()
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
 		w.Header().Set("WWW-Authenticate", `Basic realm = "Access to the staging site"`)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	if username == "chettriyuvraj" && pass == "king" {
-		w.Write([]byte("<!DOCTYPE html>\n<html>Hello username!"))
+		w.Write([]byte("<!DOCTYPE html>\n<html>Hello chettriyuvraj!"))
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	w.WriteHeader(http.StatusUnauthorized)
 	w.Write([]byte("Credentials wrong or invalid"))
+	w.WriteHeader(http.StatusUnauthorized)
 }
 
 func handle200(w http.ResponseWriter, r *http.Request) {
@@ -65,8 +70,8 @@ func handle200(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/plain")
-	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("200"))
+	w.WriteHeader(http.StatusOK)
 }
 
 func handle500(w http.ResponseWriter, r *http.Request) {
@@ -75,6 +80,6 @@ func handle500(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusInternalServerError)
 	w.Write([]byte("Internal Server Error"))
+	w.WriteHeader(http.StatusInternalServerError)
 }

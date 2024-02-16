@@ -12,13 +12,13 @@ func main() {
 	http.HandleFunc("/authenticated", handleAuthenticated)
 	http.HandleFunc("/200", handle200)
 	http.HandleFunc("/500", handle500)
+	http.HandleFunc("/404", http.NotFoundHandler().ServeHTTP)
 	http.ListenAndServe(":8080", nil)
 }
 
 func handleBase(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("404 page not found"))
+		http.NotFound(w, r)
 		return
 	}
 
@@ -59,12 +59,22 @@ func handleAuthenticated(w http.ResponseWriter, r *http.Request) {
 }
 
 func handle200(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.NotFound(w, r)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "text/plain")
 	w.Write([]byte("200"))
 }
 
 func handle500(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.NotFound(w, r)
+		return
+	}
+
 	w.WriteHeader(http.StatusInternalServerError)
 	w.Write([]byte("Internal Server Error"))
 }

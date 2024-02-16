@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-
 	http.HandleFunc("/", handleBase)
 	http.HandleFunc("/authenticated", handleAuthenticated)
 	http.HandleFunc("/200", handle200)
@@ -44,7 +43,12 @@ func handleBase(w http.ResponseWriter, r *http.Request) {
 
 func handleAuthenticated(w http.ResponseWriter, r *http.Request) {
 	username, pass, ok := r.BasicAuth()
-	if ok && username == "chettriyuvraj" && pass == "king" {
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Header().Set("WWW-Authenticate", `Basic realm = "Access to the staging site"`)
+		return
+	}
+	if username == "chettriyuvraj" && pass == "king" {
 		w.Write([]byte("<!DOCTYPE html>\n<html>Hello username!"))
 		w.WriteHeader(http.StatusOK)
 		return

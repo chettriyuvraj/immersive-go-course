@@ -63,3 +63,49 @@ func TestHandle200(t *testing.T) {
 		})
 	}
 }
+
+func TestInvalidURLs(t *testing.T) {
+
+	type args struct {
+		urlPath string
+	}
+	type resp struct {
+		respStr    string
+		statusCode int
+	}
+	var invalidURLResp resp = resp{respStr: "404 page not found\n", statusCode: http.StatusNotFound}
+
+	tests := []struct {
+		args args
+		resp resp
+	}{
+		{
+			args: args{
+				urlPath: "/554",
+			},
+			resp: invalidURLResp,
+		},
+		{
+			args: args{
+				urlPath: "/ddsfg",
+			},
+			resp: invalidURLResp,
+		},
+	}
+	for _, tc := range tests {
+		t.Run("test invalid path", func(t *testing.T) {
+			url := fmt.Sprintf("%s%s", DUMMYURL, tc.args.urlPath)
+			req := httptest.NewRequest(http.MethodGet, url, nil)
+
+			w := httptest.NewRecorder()
+			handleBase(w, req)
+			resp := w.Result()
+			buf := new(bytes.Buffer)
+			_, err := io.Copy(buf, resp.Body)
+			defer resp.Body.Close()
+			require.NoError(t, err)
+			require.Equal(t, tc.resp.respStr, buf.String())
+			require.Equal(t, tc.resp.statusCode, resp.StatusCode)
+		})
+	}
+}

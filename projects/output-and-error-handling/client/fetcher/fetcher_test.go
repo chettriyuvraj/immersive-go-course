@@ -87,5 +87,5 @@ func TestHandle200(t *testing.T) {
 	mockRoundTripper.StubResponse(200, &http.Header{}, body)
 	resp, err := f.MakeRequest("http://www.dummyurl.com")
 	require.NoError(t, err)
-	require.NotEqual(t, resp, body)
+	require.Equal(t, resp, body)
 }

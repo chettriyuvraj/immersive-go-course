@@ -6,14 +6,14 @@ import (
 	"sync/atomic"
 )
 
-var x int32 = 0
+var atomicX atomic.Int32
 
 func increment(wg *sync.WaitGroup) { //
-	swapSuccess := false
-	for !swapSuccess {
-		curVal := x
-		nextVal := curVal + 1
-		swapSuccess = atomic.CompareAndSwapInt32(&x, curVal, nextVal)
+	for {
+		curVal := atomicX.Load()
+		if atomicX.CompareAndSwap(curVal, curVal+1) {
+			break
+		}
 	}
 	wg.Done()
 }
@@ -25,5 +25,21 @@ func main() {
 		go increment(&w)
 	}
 	w.Wait()
-	fmt.Println("final value of x", x)
+	fmt.Println("final value of x", atomicX.Load())
 }
+
+/* Alternate solution
+
+var x int32 = 0
+
+func increment(wg *sync.WaitGroup) {
+	swapSuccess := false
+	for !swapSuccess {
+		curVal := x
+		nextVal := curVal + 1
+		swapSuccess = atomic.CompareAndSwapInt32(&x, curVal, nextVal)
+	}
+	wg.Done()
+}
+
+*/

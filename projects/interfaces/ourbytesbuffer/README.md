@@ -54,3 +54,7 @@
     - My interpretation: _The only thing we can test is the count of the bytes written_ -> Acc to the reference soln, _io.Writer is documented to return the number of bytes processed, not used_ so n will always be the entire length of the string including digits
     - What else can we test then? We can pass a ReadWriter() like Buffer and at the end check the contents of the buffer has no digits
     - Also, the table-driven style goes very well here! 
+
+
+- Tests
+    - In non-table driven tests (buffer_test.go), the tests were always as small as possible i.e. fine grained, while I have chosen to test multiple things in a single test, I think this has hampered readability in my tests.

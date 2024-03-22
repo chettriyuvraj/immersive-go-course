@@ -15,3 +15,22 @@ func TestCachePutAndGet(t *testing.T) {
 	require.Equal(t, true, isCached)
 	require.Equal(t, val, *cachedVal)
 }
+
+func TestCachePutAndGetParallel(t *testing.T) {
+	cache := NewCache[string, string](5)
+
+	t.Run("Get cache in parallel", func(t *testing.T) {
+		t.Parallel()
+		for i := 0; i < 100; i++ {
+			cache.Get("k1")
+		}
+	})
+
+	t.Run("Put cache in parallel", func(t *testing.T) {
+		t.Parallel()
+		for i := 0; i < 100; i++ {
+			cache.Put("k1", "v1")
+		}
+	})
+
+}

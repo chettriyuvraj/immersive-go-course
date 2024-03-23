@@ -10,9 +10,12 @@ type CacheStats struct {
 }
 
 type CacheEntry[V any] struct {
-	val     V
-	touched bool
-	reads   int
+	val   V
+	reads int
+}
+
+func (ce *CacheEntry[V]) isUntouched() bool {
+	return ce.reads == 0
 }
 
 type Cache[K comparable, V any] struct {
@@ -42,6 +45,7 @@ func (c *Cache[K, V]) Get(key K) (V, bool) {
 	}
 
 	c.hits++
+	cachEntry.reads++
 	return cachEntry.val, true
 }
 
@@ -53,10 +57,6 @@ func (c *Cache[K, V]) Put(key K, val V) {
 	c.size++
 	c.writes++
 }
-
-// func (c *Cache[K, V]) ComputeCacheStats() CacheStats {
-
-// }
 
 func getZero[V any]() V {
 	var result V

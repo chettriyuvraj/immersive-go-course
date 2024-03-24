@@ -9,12 +9,7 @@ import (
 var atomicX atomic.Int32
 
 func increment(wg *sync.WaitGroup) { //
-	for {
-		curVal := atomicX.Load()
-		if atomicX.CompareAndSwap(curVal, curVal+1) {
-			break
-		}
-	}
+	atomicX.Add(1)
 	wg.Done()
 }
 
@@ -27,6 +22,17 @@ func main() {
 	w.Wait()
 	fmt.Println("final value of x", atomicX.Load())
 }
+
+/* Why did I create this convoluted implementation? */
+// func increment(wg *sync.WaitGroup) { //
+// 	for {
+// 		curVal := atomicX.Load()
+// 		if atomicX.CompareAndSwap(curVal, curVal+1) {
+// 			break
+// 		}
+// 	}
+// 	wg.Done()
+// }
 
 /* Alternate solution
 

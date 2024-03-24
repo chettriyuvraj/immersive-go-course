@@ -30,3 +30,12 @@ Plan
     - Testing mechanism similar to above
 - Part 3: LRU using hashmap + double linked list:
     - Testing mechanism similar to above
+
+
+## Thoughts post-implementation
+
+- Didn't really follow TDD -> wrote features first then implemented them, would this process have sped up significantly with strict TDD?
+- Got bored by the end - didn't write tests for stat implementation
+- Still not very comfortable with writing tests, are my tests too convoluted?
+- Didn't use fuzzy testing or t.Parallel()
+- Read solution to find out how it has been implemented

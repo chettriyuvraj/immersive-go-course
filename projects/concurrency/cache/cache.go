@@ -22,11 +22,11 @@ func (ce *CacheNode[V]) isUntouched() bool {
 }
 
 type Cache[K comparable, V any] struct {
-	cacheMap             map[K]*CacheNode[V]
-	head, tail           *CacheNode[V] /* Currently implementing LRU eviction policy */
-	size, limit          int
-	mu                   *sync.Mutex
-	hits, misses, writes int
+	cacheMap                    map[K]*CacheNode[V]
+	head, tail                  *CacheNode[V] /* Currently implementing LRU eviction policy */
+	size, limit                 int
+	mu                          *sync.Mutex
+	hits, misses, reads, writes int
 	// evictedWithoutTouch  int
 }
 
@@ -44,6 +44,7 @@ func (cache *Cache[K, V]) Get(key K) (V, bool) {
 	defer cache.mu.Unlock()
 
 	node, exists := cache.cacheMap[key]
+	cache.reads++
 	if !exists {
 		cache.misses++
 		return getZero[V](), false
@@ -69,6 +70,7 @@ func (cache *Cache[K, V]) Put(key K, val V) error {
 		}
 		existingNode.val = val
 		cache.writes++
+		cache.hits++
 		return nil
 	}
 
@@ -81,6 +83,7 @@ func (cache *Cache[K, V]) Put(key K, val V) error {
 	}
 	cache.AddNewNodeToHead(newNode)
 	cache.cacheMap[key] = newNode
+	cache.misses++
 	cache.writes++
 	return nil
 }
@@ -144,6 +147,13 @@ func (cache *Cache[K, V]) RemoveLRUNode() *CacheNode[V] {
 	}
 	return oldTail
 }
+
+// func (cache *Cache[K, V]) GetStats() CacheStats {
+// 	cache.mu.Lock()
+// 	defer cache.mu.Unlock()
+// 	totalCalls := cache.hits + cache.misses
+// 	hitRate, := float64(cache.hits/totalCalls)
+// }
 
 func getZero[V any]() V {
 	var result V

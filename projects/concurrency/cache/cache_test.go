@@ -15,8 +15,9 @@ func TestPutAndGet(t *testing.T) {
 	rand := getRandGenerator()
 
 	key, val := rand.Int(), rand.Int()
-	cache.Put(key, val)
+	err := cache.Put(key, val)
 	cachedVal, isCached := cache.Get(key)
+	require.Equal(t, nil, err)
 	require.Equal(t, true, isCached)
 	require.Equal(t, val, cachedVal)
 }
@@ -38,7 +39,8 @@ func TestPutAndGetLock(t *testing.T) {
 		go func() {
 			rand := getRandGenerator()
 			k, v := rand.Int(), rand.Int()
-			cache.Put(k, v)
+			err := cache.Put(k, v)
+			require.Equal(t, nil, err)
 			wg.Done()
 		}()
 	}
@@ -46,6 +48,7 @@ func TestPutAndGetLock(t *testing.T) {
 	wg.Wait()
 }
 
+/* TODO: not tested properly hits/misses etc */
 func TestStatsUpdate(t *testing.T) {
 	cacheSize, iterations := 500, 50
 	rand := getRandGenerator()
@@ -53,7 +56,8 @@ func TestStatsUpdate(t *testing.T) {
 	t.Run("Test cache hit count", func(t *testing.T) {
 		key, val := rand.Int(), rand.Int()
 		cache := NewCache[int, int](cacheSize)
-		cache.Put(key, val)
+		err := cache.Put(key, val)
+		require.Equal(t, nil, err)
 		for i := 0; i < iterations; i++ {
 			cachedVal, exists := cache.Get(key)
 			require.Equal(t, true, exists)
@@ -76,7 +80,8 @@ func TestStatsUpdate(t *testing.T) {
 		cache := NewCache[int, int](cacheSize)
 		key, val := rand.Int(), rand.Int()
 		for i := 0; i < iterations; i++ {
-			cache.Put(key, val)
+			err := cache.Put(key, val)
+			require.Equal(t, nil, err)
 			require.Equal(t, i+1, cache.writes)
 		}
 	})
@@ -129,7 +134,8 @@ func TestAddExistingNodeToHead(t *testing.T) {
 		/* Add all elems to cache - put in reverse order => order of LRU will be same as the order of tc.cacheElems */
 		for i := len(tc.cacheElems) - 1; i >= 0; i-- {
 			elem := tc.cacheElems[i]
-			cache.Put(elem.key, elem.val)
+			err := cache.Put(elem.key, elem.val)
+			require.Equal(t, nil, err)
 		}
 
 		/* Grab existing node and capture snapshot of current params */
@@ -167,7 +173,8 @@ func TestLRU(t *testing.T) {
 			lruNodeBeforePut, sizeBeforePut := cache.tail, cache.size
 
 			key, val := generateIntNotInCache(cache), rand.Int()
-			cache.Put(key, val)
+			err := cache.Put(key, val)
+			require.Equal(t, nil, err)
 
 			if lruNodeBeforePut == nil {
 				continue
@@ -186,13 +193,15 @@ func TestLRU(t *testing.T) {
 		/* Fill cache to the limit */
 		for i := 0; i < cacheSize; i++ {
 			key, val := generateIntNotInCache(cache), rand.Int()
-			cache.Put(key, val)
+			err := cache.Put(key, val)
+			require.Equal(t, nil, err)
 		}
 		/* LRU must be eliminated after each put */
 		for i := 0; i < iterations; i++ {
 			lruNodeBeforePut := cache.tail
 			key, val := generateIntNotInCache(cache), rand.Int()
-			cache.Put(key, val)
+			err := cache.Put(key, val)
+			require.Equal(t, nil, err)
 			if lruNodeBeforePut == nil {
 				continue
 			}

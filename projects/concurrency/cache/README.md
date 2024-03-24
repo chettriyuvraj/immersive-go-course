@@ -39,3 +39,21 @@ Plan
 - Still not very comfortable with writing tests, are my tests too convoluted?
 - Didn't use fuzzy testing or t.Parallel()
 - Read solution to find out how it has been implemented
+
+
+### Thoughts after reading solutions
+
+[Solution 1](https://github.com/CodeYourFuture/immersive-go-course/tree/impl/concurrency/projects/concurrency/lru_cache_everything_in_buckets)
+[Solution 2](https://github.com/CodeYourFuture/immersive-go-course/blob/impl/concurrency/projects/concurrency/lru_cache_separate_eviction_list/cache.go)
+
+- Solution 2 is closer to what I came up with (a DLL)
+- Solution 1 uses a timestamp and eviction requires a scan through the map
+- But in general , both solutions were actually quite similar to what I came up with in terms of structs, approach to calculating stats, locks and testing: Big W cause sometimes I feel like my approach is too _swinging in the dark_ for my own liking
+    - Especially the constructs that the author came up with in terms of structures et al
+- Tests were similar / some not but the thing that I learnt was
+    - It is okay to hardcode stuff for small tests
+    - Extremely complementary things like get/put are usually tested together
+    - IMP: Add a _locked prefix to functions (eviction functions to refresh list) - however unit tests to verify what they actually do can call them without a lock imo
+- The authors approach for testing concurrent Gets/ concurrent Puts was informative
+    - I have tested gets/puts together but not concurrent gets although I feel my approach tests all of them: gets-puts/puts-puts/gets-gets since there are multiple goroutines
+- The computations and fields for computing stats were quite similar to my approach

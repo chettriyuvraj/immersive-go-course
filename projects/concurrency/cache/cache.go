@@ -117,6 +117,8 @@ func (cache *Cache[K, V]) AddExistingNodeToHead(node *CacheNode[V]) error {
 /*
 - expects node to exist in cache, behaviour undefined if it does not
 - does not modify cache.size and does not account for cache.size i.e. it will exceed cache.size if not called responsibly
+
+Note: Add a _locked postfix to this since this is expected to always be called with a lock held
 */
 func (cache *Cache[K, V]) AddNewNodeToHead(node *CacheNode[V]) {
 	if cache.head == nil && cache.tail == nil {
@@ -135,6 +137,8 @@ func (cache *Cache[K, V]) AddNewNodeToHead(node *CacheNode[V]) {
 /*
 - expects node to exist in cache, behaviour undefined if it does not
 - does not modify cache.size and does not account for cache.size i.e. it will exceed cache.size if not called responsibly
+
+Note: Add a _locked postfix to this since this is expected to always be called with a lock held
 */
 func (cache *Cache[K, V]) RemoveLRUNode() *CacheNode[V] {
 	if cache.tail == nil {

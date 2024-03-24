@@ -7,7 +7,7 @@ import (
 type CacheStats struct {
 	hitRate                 float64
 	untouchedElems          int
-	readAvg                 int
+	avgReads                float64 /* Only for in-cache elems */
 	totalReads, totalWrites int
 }
 
@@ -26,7 +26,7 @@ type Cache[K comparable, V any] struct {
 	head, tail                  *CacheNode[V] /* Currently implementing LRU eviction policy */
 	size, limit                 int
 	mu                          *sync.Mutex
-	hits, misses, reads, writes int
+	hits, misses, reads, writes int /* Every access to cacheMap regardless of it being Get/Put is considered for these fields */
 	// evictedWithoutTouch  int
 }
 
@@ -50,10 +50,10 @@ func (cache *Cache[K, V]) Get(key K) (V, bool) {
 		return getZero[V](), false
 	}
 
+	node.reads++
 	cache.AddExistingNodeToHead(node)
 
 	cache.hits++
-	node.reads++
 	return node.val, true
 }
 
@@ -62,8 +62,10 @@ func (cache *Cache[K, V]) Put(key K, val V) error {
 	defer cache.mu.Unlock()
 
 	/* If node already exists in cache */
+	cache.reads++
 	existingNode, exists := cache.cacheMap[key]
 	if exists {
+		existingNode.reads++
 		err := cache.AddExistingNodeToHead(existingNode)
 		if err != nil {
 			return err
@@ -148,12 +150,30 @@ func (cache *Cache[K, V]) RemoveLRUNode() *CacheNode[V] {
 	return oldTail
 }
 
-// func (cache *Cache[K, V]) GetStats() CacheStats {
-// 	cache.mu.Lock()
-// 	defer cache.mu.Unlock()
-// 	totalCalls := cache.hits + cache.misses
-// 	hitRate, := float64(cache.hits/totalCalls)
-// }
+func (cache *Cache[K, V]) GetStats() CacheStats {
+	cache.mu.Lock()
+	defer cache.mu.Unlock()
+	stats := CacheStats{}
+
+	/* Gather params to compute stats */
+	totalCalls := cache.reads + cache.writes
+	untouchedNodes, totalReadsForCachedNodes := 0, 0
+	for _, node := range cache.cacheMap {
+		if node.isUntouched() {
+			untouchedNodes++
+		}
+		totalReadsForCachedNodes += node.reads
+	}
+
+	/* Compute stats */
+	stats.hitRate = float64(cache.hits) / float64(totalCalls)
+	stats.untouchedElems = untouchedNodes
+	stats.avgReads = float64(totalReadsForCachedNodes) / float64(cache.reads)
+	stats.totalReads = cache.reads
+	stats.totalWrites = cache.writes
+
+	return stats
+}
 
 func getZero[V any]() V {
 	var result V

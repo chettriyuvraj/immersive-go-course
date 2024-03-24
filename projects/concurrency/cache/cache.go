@@ -56,10 +56,23 @@ func (cache *Cache[K, V]) Get(key K) (V, bool) {
 	return node.val, true
 }
 
-func (cache *Cache[K, V]) Put(key K, val V) {
+func (cache *Cache[K, V]) Put(key K, val V) error {
 	cache.mu.Lock()
 	defer cache.mu.Unlock()
 
+	/* If node already exists in cache */
+	existingNode, exists := cache.cacheMap[key]
+	if exists {
+		err := cache.AddExistingNodeToHead(existingNode)
+		if err != nil {
+			return err
+		}
+		existingNode.val = val
+		cache.writes++
+		return nil
+	}
+
+	/* If node doesn't exist */
 	newNode := &CacheNode[V]{val: val}
 	if cache.size < cache.limit {
 		cache.size++
@@ -69,6 +82,7 @@ func (cache *Cache[K, V]) Put(key K, val V) {
 	cache.AddNewNodeToHead(newNode)
 	cache.cacheMap[key] = newNode
 	cache.writes++
+	return nil
 }
 
 /* Add a node that already exists in cache to the head of the list */
@@ -95,7 +109,10 @@ func (cache *Cache[K, V]) AddExistingNodeToHead(node *CacheNode[V]) error {
 	return nil
 }
 
-/* Note: does not modify cache.size */
+/*
+- expects node to exist in cache, behaviour undefined if it does not
+- does not modify cache.size and does not account for cache.size i.e. it will exceed cache.size if not called responsibly
+*/
 func (cache *Cache[K, V]) AddNewNodeToHead(node *CacheNode[V]) {
 	if cache.head == nil && cache.tail == nil {
 		cache.head = node
@@ -110,7 +127,10 @@ func (cache *Cache[K, V]) AddNewNodeToHead(node *CacheNode[V]) {
 	cache.head = node
 }
 
-/* Note: does not modify cache.size */
+/*
+- expects node to exist in cache, behaviour undefined if it does not
+- does not modify cache.size and does not account for cache.size i.e. it will exceed cache.size if not called responsibly
+*/
 func (cache *Cache[K, V]) RemoveLRUNode() *CacheNode[V] {
 	if cache.tail == nil {
 		return nil

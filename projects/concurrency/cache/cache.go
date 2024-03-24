@@ -1,6 +1,8 @@
 package cache
 
-import "sync"
+import (
+	"sync"
+)
 
 type CacheStats struct {
 	hitRate                 float64
@@ -59,12 +61,11 @@ func (cache *Cache[K, V]) Put(key K, val V) {
 
 	newNode := &CacheNode[V]{val: val}
 	if cache.size < cache.limit {
-		cache.AddNewNodeToHead(newNode)
 		cache.size++
 	} else {
 		cache.RemoveLRUNode() /* No size change - new node replaces LRU node */
 	}
-
+	cache.AddNewNodeToHead(newNode)
 	cache.cacheMap[key] = newNode
 	cache.writes++
 }
@@ -121,10 +122,6 @@ func (cache *Cache[K, V]) RemoveLRUNode() *CacheNode[V] {
 		cache.tail = tailPrev
 	}
 	return oldTail
-}
-
-func (cache *Cache[K, V]) GetLRUNode() *CacheNode[V] {
-	return cache.tail
 }
 
 func getZero[V any]() V {

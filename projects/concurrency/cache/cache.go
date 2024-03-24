@@ -25,7 +25,7 @@ type Cache[K comparable, V any] struct {
 	cacheMap             map[K]*CacheNode[V]
 	head, tail           *CacheNode[V] /* Currently implementing LRU eviction policy */
 	size, limit          int
-	mu                   sync.Mutex
+	mu                   *sync.Mutex
 	hits, misses, writes int
 	// evictedWithoutTouch  int
 }
@@ -35,6 +35,7 @@ func NewCache[K comparable, V any](limit int) *Cache[K, V] {
 	return &Cache[K, V]{
 		cacheMap: make(map[K]*CacheNode[V]),
 		limit:    limit,
+		mu:       &sync.Mutex{},
 	}
 }
 
@@ -94,7 +95,7 @@ func (cache *Cache[K, V]) AddExistingNodeToHead(node *CacheNode[V]) error {
 	return nil
 }
 
-/* Note: does not modify cache size */
+/* Note: does not modify cache.size */
 func (cache *Cache[K, V]) AddNewNodeToHead(node *CacheNode[V]) {
 	if cache.head == nil && cache.tail == nil {
 		cache.head = node
@@ -109,7 +110,7 @@ func (cache *Cache[K, V]) AddNewNodeToHead(node *CacheNode[V]) {
 	cache.head = node
 }
 
-/* Note: does not modify cache size */
+/* Note: does not modify cache.size */
 func (cache *Cache[K, V]) RemoveLRUNode() *CacheNode[V] {
 	if cache.tail == nil {
 		return nil

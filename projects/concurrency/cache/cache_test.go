@@ -2,6 +2,7 @@ package cache
 
 import (
 	"math/rand"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -22,22 +23,27 @@ func TestPutAndGet(t *testing.T) {
 
 func TestPutAndGetLock(t *testing.T) {
 	cacheSize := 5
+	iterations := cacheSize * 10
 	cache := NewCache[int, int](cacheSize)
-	rand := getRandGenerator()
+	var wg sync.WaitGroup
 
-	t.Run("Get cache in parallel", func(t *testing.T) {
-		t.Parallel()
-		for i := 0; i < 100; i++ {
-			cache.Get(rand.Int())
-		}
-	})
+	for i := 0; i < iterations; i++ {
+		wg.Add(2)
+		go func() {
+			rand := getRandGenerator()
+			k := rand.Int()
+			cache.Get(k)
+			wg.Done()
+		}()
+		go func() {
+			rand := getRandGenerator()
+			k, v := rand.Int(), rand.Int()
+			cache.Put(k, v)
+			wg.Done()
+		}()
+	}
 
-	t.Run("Put cache in parallel", func(t *testing.T) {
-		t.Parallel()
-		for i := 0; i < 100; i++ {
-			cache.Put(rand.Int(), rand.Int())
-		}
-	})
+	wg.Wait()
 }
 
 func TestStatsUpdate(t *testing.T) {
@@ -45,9 +51,8 @@ func TestStatsUpdate(t *testing.T) {
 	rand := getRandGenerator()
 
 	t.Run("Test cache hit count", func(t *testing.T) {
-		t.Parallel()
-		cache := NewCache[int, int](cacheSize)
 		key, val := rand.Int(), rand.Int()
+		cache := NewCache[int, int](cacheSize)
 		cache.Put(key, val)
 		for i := 0; i < iterations; i++ {
 			cachedVal, exists := cache.Get(key)
@@ -58,7 +63,6 @@ func TestStatsUpdate(t *testing.T) {
 	})
 
 	t.Run("Test cache miss count", func(t *testing.T) {
-		t.Parallel()
 		cache := NewCache[int, int](cacheSize)
 		key := rand.Int()
 		for i := 0; i < iterations; i++ {
@@ -69,7 +73,6 @@ func TestStatsUpdate(t *testing.T) {
 	})
 
 	t.Run("Test cache write count", func(t *testing.T) {
-		t.Parallel()
 		cache := NewCache[int, int](cacheSize)
 		key, val := rand.Int(), rand.Int()
 		for i := 0; i < iterations; i++ {

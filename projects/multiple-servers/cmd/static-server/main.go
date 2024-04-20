@@ -1,7 +1,14 @@
 package main
 
-import "servers/static"
+import (
+	"fmt"
+	"os"
+	"servers/static"
+)
 
 func main() {
-	static.Run()
+	err := static.Run()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error in serving static content: [%w]", err)
+	}
 }

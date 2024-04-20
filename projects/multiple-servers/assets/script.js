@@ -13,7 +13,7 @@ function fetchImages(development) {
         },
       ]);
     }
-    return fetch("http://localhost:8081/images.json").then((_) => _.json());
+    return fetch("http://localhost:8081/images.json", ).then((_) => _.json());
   }
   
   function timeout(t, v) {
@@ -24,7 +24,7 @@ function fetchImages(development) {
   
   const gallery$ = document.querySelector(".gallery");
   
-  fetchImages(true).then(
+  fetchImages(false).then(
     (images) => {
       gallery$.textContent = images.length ? "" : "No images available.";
   

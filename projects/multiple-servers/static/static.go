@@ -1,14 +1,17 @@
 package static
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 )
 
 func Run() error {
 	fs := http.Dir("../assets")
 
-	log.Fatal(http.ListenAndServe(":8080", http.FileServer(fs)))
+	err := http.ListenAndServe(":8080", http.FileServer(fs))
+	if err != nil {
+		return fmt.Errorf("unable to serve file server: [%w]", err)
+	}
 
 	return nil
 }

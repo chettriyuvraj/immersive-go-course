@@ -20,7 +20,11 @@ Setting up a scaled-down version of this exercise, so as to focus on the importa
 
 - Understand what cross-origin requests are and fix this issue by modifying API headers
 
+## Configure nginx
 
+- Configure nginx without upstream (~load-balancing to multiple servers) since we haven't configured flags for ports
+
+- (Was trying to launch nginx on the same port as the server - couldn't figure why it wasn't working)
 
 
 

@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -28,12 +29,13 @@ var images []Image = []Image{
 func Run() error {
 
 	http.HandleFunc("/images.json", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+		log.Println(r.Method, r.URL.EscapedPath())
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		enc := json.NewEncoder(w)
 		enc.Encode(images)
 	})
 
-	err := http.ListenAndServe(":8081", nil)
+	err := http.ListenAndServe(":8082", nil)
 	if err != nil {
 		return fmt.Errorf("unable to serve file server: [%w]", err)
 	}

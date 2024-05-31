@@ -1,11 +1,11 @@
-# README.md
+# README
 
-To read the original objective of this exercise, refer [here](https://github.com/chettriyuvraj/immersive-go-course/tree/main/projects/output-and-error-handling)
+To read the original objective of this exercise, refer to [this](https://github.com/chettriyuvraj/immersive-go-course/tree/main/projects/output-and-error-handling) readme.
 
 
 I will instead be using this to demonstrate writing a simple client for a provided server in Go + unit-tests for the same.
 
-Given below is a small excerpt from the original exercise explaining what we are doing:
+Given below is a small excerpt from the original exercise explaining what we are doing
 
 ## Exercise
 

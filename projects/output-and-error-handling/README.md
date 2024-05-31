@@ -5,7 +5,7 @@ To read the original objective of this exercise, refer to [this](https://github.
 
 I will instead be using this to demonstrate writing a simple client for a provided server in Go + unit-tests for the same.
 
-Given below is a small excerpt from the original exercise explaining what we are doing
+Given below is a small excerpt from the original exercise explaining what we are doing.
 
 ## Exercise
 
